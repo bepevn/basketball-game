@@ -1,0 +1,1545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,
+               initial-scale=1.0,
+               maximum-scale=1.0,
+               user-scalable=no">
+
+<title>Dunk Master</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background:
+        linear-gradient(
+            180deg,
+            #07111f 0%,
+            #102a43 100%
+        );
+
+    font-family:
+        Arial,
+        "Malgun Gothic",
+        sans-serif;
+
+    overflow: hidden;
+    color: white;
+}
+
+#gameContainer {
+    width: 100%;
+    max-width: 1100px;
+    margin: auto;
+    position: relative;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    background:
+        linear-gradient(
+            #87ceeb 0%,
+            #c9f0ff 55%,
+            #d7d7d7 56%,
+            #bdbdbd 100%
+        );
+
+    border-radius: 18px;
+    box-shadow:
+        0 15px 40px rgba(0,0,0,0.45);
+
+    touch-action: none;
+}
+
+#menu {
+    position: absolute;
+    inset: 0;
+
+    display: flex;
+    flex-direction: column;
+
+    align-items: center;
+    justify-content: center;
+
+    background:
+        linear-gradient(
+            rgba(3,10,20,0.80),
+            rgba(3,10,20,0.92)
+        );
+
+    border-radius: 18px;
+
+    z-index: 10;
+}
+
+.logo {
+    font-size: 70px;
+    margin-bottom: 10px;
+}
+
+.title {
+    font-size: 48px;
+    font-weight: 900;
+    margin-bottom: 10px;
+
+    text-shadow:
+        0 5px 15px rgba(0,0,0,0.6);
+}
+
+.subtitle {
+    color: #b9d7ef;
+    margin-bottom: 35px;
+}
+
+button {
+    border: none;
+    cursor: pointer;
+
+    padding: 17px 55px;
+
+    border-radius: 50px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #ff7b00,
+            #ff3d00
+        );
+
+    color: white;
+
+    font-size: 22px;
+    font-weight: bold;
+
+    box-shadow:
+        0 8px 20px rgba(255,80,0,0.35);
+
+    transition: 0.15s;
+}
+
+button:hover {
+    transform: scale(1.05);
+}
+
+#hud {
+    position: absolute;
+
+    top: 18px;
+    left: 18px;
+    right: 18px;
+
+    display: flex;
+    justify-content: space-between;
+
+    pointer-events: none;
+}
+
+.hudBox {
+    background: rgba(0,0,0,0.55);
+
+    padding: 10px 18px;
+
+    border-radius: 15px;
+
+    backdrop-filter: blur(8px);
+}
+
+.hudLabel {
+    font-size: 12px;
+    color: #aaa;
+}
+
+.hudValue {
+    font-size: 25px;
+    font-weight: 900;
+}
+
+#powerBar {
+    position: absolute;
+
+    bottom: 25px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    width: 230px;
+    height: 18px;
+
+    background: rgba(0,0,0,0.45);
+
+    border-radius: 20px;
+
+    overflow: hidden;
+
+    opacity: 0;
+
+    transition: 0.15s;
+}
+
+#powerFill {
+    width: 0%;
+    height: 100%;
+
+    background:
+        linear-gradient(
+            90deg,
+            #00e5ff,
+            #00ff66,
+            #ffe600,
+            #ff3300
+        );
+}
+
+#message {
+    position: absolute;
+
+    top: 110px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    font-size: 42px;
+    font-weight: 900;
+
+    text-shadow:
+        0 4px 10px black;
+
+    opacity: 0;
+
+    pointer-events: none;
+}
+
+#instructions {
+    position: absolute;
+
+    bottom: 20px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    color: rgba(255,255,255,0.8);
+
+    font-size: 15px;
+
+    pointer-events: none;
+}
+
+</style>
+</head>
+
+<body>
+
+<div id="gameContainer">
+
+<canvas
+    id="gameCanvas"
+    width="1100"
+    height="700">
+</canvas>
+
+<div id="menu">
+
+    <div class="logo">🏀</div>
+
+    <div class="title">
+        DUNK MASTER
+    </div>
+
+    <div class="subtitle">
+        Aim • Charge • Shoot • Score
+    </div>
+
+    <button id="startButton">
+        게임 시작
+    </button>
+
+</div>
+
+<div id="hud">
+
+    <div class="hudBox">
+        <div class="hudLabel">
+            SCORE
+        </div>
+
+        <div
+            class="hudValue"
+            id="score">
+            0
+        </div>
+    </div>
+
+    <div class="hudBox">
+        <div class="hudLabel">
+            COMBO
+        </div>
+
+        <div
+            class="hudValue"
+            id="combo">
+            x0
+        </div>
+    </div>
+
+    <div class="hudBox">
+        <div class="hudLabel">
+            BEST
+        </div>
+
+        <div
+            class="hudValue"
+            id="best">
+            0
+        </div>
+    </div>
+
+</div>
+
+<div id="powerBar">
+    <div id="powerFill"></div>
+</div>
+
+<div id="message"></div>
+
+<div id="instructions">
+    마우스를 드래그해서 방향과 힘을 조절하세요
+</div>
+
+</div>
+
+<script>
+
+const canvas =
+    document.getElementById("gameCanvas");
+
+const ctx =
+    canvas.getContext("2d");
+
+const menu =
+    document.getElementById("menu");
+
+const startButton =
+    document.getElementById("startButton");
+
+const scoreText =
+    document.getElementById("score");
+
+const comboText =
+    document.getElementById("combo");
+
+const bestText =
+    document.getElementById("best");
+
+const powerBar =
+    document.getElementById("powerBar");
+
+const powerFill =
+    document.getElementById("powerFill");
+
+const message =
+    document.getElementById("message");
+
+
+/* =========================
+   게임 상태
+========================= */
+
+let gameRunning = false;
+
+let score = 0;
+
+let combo = 0;
+
+let best =
+    Number(localStorage.getItem("basketBest")) || 0;
+
+bestText.textContent = best;
+
+
+/* =========================
+   공
+========================= */
+
+const ball = {
+
+    x: 145,
+    y: 570,
+
+    radius: 22,
+
+    vx: 0,
+    vy: 0,
+
+    flying: false,
+
+    rotation: 0
+
+};
+
+
+/* =========================
+   골대
+========================= */
+
+const hoop = {
+
+    x: 850,
+    y: 300,
+
+    width: 150,
+
+    height: 90
+
+};
+
+
+/* =========================
+   바람
+========================= */
+
+let wind = 0;
+
+
+/* =========================
+   조준
+========================= */
+
+let aiming = false;
+
+let aimX = 0;
+
+let aimY = 0;
+
+
+/* =========================
+   게임 시작
+========================= */
+
+startButton.addEventListener(
+    "click",
+    startGame
+);
+
+
+function startGame() {
+
+    menu.style.display = "none";
+
+    gameRunning = true;
+
+    score = 0;
+
+    combo = 0;
+
+    resetBall();
+
+    newHoop();
+
+    updateHUD();
+
+    showMessage(
+        "START!",
+        800
+    );
+}
+
+
+/* =========================
+   공 초기화
+========================= */
+
+function resetBall() {
+
+    ball.x = 145;
+
+    ball.y = 570;
+
+    ball.vx = 0;
+
+    ball.vy = 0;
+
+    ball.flying = false;
+
+    ball.rotation = 0;
+}
+
+
+/* =========================
+   골대 랜덤 배치
+========================= */
+
+function newHoop() {
+
+    /*
+        점수가 높아질수록
+        골대가 작아짐
+    */
+
+    hoop.width =
+        Math.max(
+            70,
+            150 - score * 5
+        );
+
+    hoop.height =
+        Math.max(
+            50,
+            90 - score * 3
+        );
+
+
+    /*
+        화면 오른쪽 영역에서
+        랜덤 위치
+    */
+
+    hoop.x =
+        700 +
+        Math.random() * 300;
+
+    hoop.y =
+        180 +
+        Math.random() * 230;
+
+
+    /*
+        바람
+    */
+
+    wind =
+        (Math.random() - 0.5) * 0.08;
+}
+
+
+/* =========================
+   좌표 변환
+========================= */
+
+function getPointer(e) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    let clientX;
+    let clientY;
+
+    if (e.touches) {
+
+        clientX =
+            e.touches[0].clientX;
+
+        clientY =
+            e.touches[0].clientY;
+
+    } else {
+
+        clientX =
+            e.clientX;
+
+        clientY =
+            e.clientY;
+    }
+
+    return {
+
+        x:
+            (clientX - rect.left)
+            * canvas.width
+            / rect.width,
+
+        y:
+            (clientY - rect.top)
+            * canvas.height
+            / rect.height
+    };
+}
+
+
+/* =========================
+   마우스 시작
+========================= */
+
+canvas.addEventListener(
+    "mousedown",
+    pointerDown
+);
+
+canvas.addEventListener(
+    "touchstart",
+    pointerDown,
+    {passive:false}
+);
+
+
+function pointerDown(e) {
+
+    if (!gameRunning)
+        return;
+
+    if (ball.flying)
+        return;
+
+    e.preventDefault();
+
+    const p =
+        getPointer(e);
+
+    aiming = true;
+
+    aimX = p.x;
+
+    aimY = p.y;
+
+    powerBar.style.opacity = 1;
+}
+
+
+/* =========================
+   조준
+========================= */
+
+canvas.addEventListener(
+    "mousemove",
+    pointerMove
+);
+
+canvas.addEventListener(
+    "touchmove",
+    pointerMove,
+    {passive:false}
+);
+
+
+function pointerMove(e) {
+
+    if (!aiming)
+        return;
+
+    e.preventDefault();
+
+    const p =
+        getPointer(e);
+
+    aimX = p.x;
+
+    aimY = p.y;
+
+
+    updatePower();
+}
+
+
+/* =========================
+   힘 계산
+========================= */
+
+function updatePower() {
+
+    /*
+        공에서 마우스까지 거리
+    */
+
+    let dx =
+        ball.x - aimX;
+
+    let dy =
+        ball.y - aimY;
+
+    let distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    /*
+        최대 파워 제한
+    */
+
+    let power =
+        Math.min(
+            distance / 3,
+            100
+        );
+
+    powerFill.style.width =
+        power + "%";
+}
+
+
+/* =========================
+   슛
+========================= */
+
+canvas.addEventListener(
+    "mouseup",
+    pointerUp
+);
+
+canvas.addEventListener(
+    "touchend",
+    pointerUp,
+    {passive:false}
+);
+
+
+function pointerUp(e) {
+
+    if (!aiming)
+        return;
+
+    e.preventDefault();
+
+    aiming = false;
+
+    powerBar.style.opacity = 0;
+
+    shoot();
+}
+
+
+/* =========================
+   공 발사
+========================= */
+
+function shoot() {
+
+    let dx =
+        ball.x - aimX;
+
+    let dy =
+        ball.y - aimY;
+
+    let distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+
+    if (distance < 20)
+        return;
+
+
+    /*
+        파워
+    */
+
+    let power =
+        Math.min(
+            distance / 14,
+            28
+        );
+
+
+    /*
+        방향 벡터
+    */
+
+    let nx =
+        dx / distance;
+
+    let ny =
+        dy / distance;
+
+
+    ball.vx =
+        nx * power;
+
+    ball.vy =
+        ny * power;
+
+    ball.flying = true;
+}
+
+
+/* =========================
+   물리 업데이트
+========================= */
+
+function update() {
+
+    if (!gameRunning)
+        return;
+
+
+    if (ball.flying) {
+
+        /*
+            중력
+        */
+
+        ball.vy += 0.45;
+
+
+        /*
+            바람
+        */
+
+        ball.vx += wind;
+
+
+        /*
+            위치
+        */
+
+        ball.x += ball.vx;
+
+        ball.y += ball.vy;
+
+
+        /*
+            회전
+        */
+
+        ball.rotation +=
+            ball.vx * 0.04;
+
+
+        /*
+            골 판정
+        */
+
+        checkHoop();
+
+
+        /*
+            화면 밖
+        */
+
+        if (
+            ball.x > canvas.width + 100 ||
+            ball.y > canvas.height + 100 ||
+            ball.x < -100
+        ) {
+
+            miss();
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   골 판정
+========================= */
+
+function checkHoop() {
+
+    /*
+        림 위치
+    */
+
+    const rimY =
+        hoop.y + hoop.height * 0.55;
+
+
+    const left =
+        hoop.x -
+        hoop.width / 2;
+
+    const right =
+        hoop.x +
+        hoop.width / 2;
+
+
+    /*
+        공이 아래로 떨어지면서
+        림을 통과했는지 확인
+    */
+
+    if (
+        ball.vy > 0 &&
+        ball.y >= rimY - 5 &&
+        ball.y <= rimY + 15 &&
+        ball.x >= left &&
+        ball.x <= right
+    ) {
+
+        scoreGoal();
+
+    }
+
+}
+
+
+/* =========================
+   성공
+========================= */
+
+function scoreGoal() {
+
+    ball.flying = false;
+
+    combo++;
+
+    score +=
+        10 * combo;
+
+
+    if (score > best) {
+
+        best = score;
+
+        localStorage.setItem(
+            "basketBest",
+            best
+        );
+    }
+
+
+    updateHUD();
+
+    showMessage(
+        "+" + (10 * combo),
+        700
+    );
+
+
+    setTimeout(
+        () => {
+
+            if (!gameRunning)
+                return;
+
+            resetBall();
+
+            newHoop();
+
+        },
+        500
+    );
+}
+
+
+/* =========================
+   실패
+========================= */
+
+function miss() {
+
+    if (!gameRunning)
+        return;
+
+    ball.flying = false;
+
+    combo = 0;
+
+    updateHUD();
+
+    showMessage(
+        "MISS!",
+        900
+    );
+
+
+    setTimeout(
+        gameOver,
+        900
+    );
+}
+
+
+/* =========================
+   게임 오버
+========================= */
+
+function gameOver() {
+
+    gameRunning = false;
+
+    menu.style.display = "flex";
+
+    startButton.textContent =
+        "다시 시작";
+
+    showMessage(
+        "GAME OVER",
+        1000
+    );
+}
+
+
+/* =========================
+   HUD
+========================= */
+
+function updateHUD() {
+
+    scoreText.textContent =
+        score;
+
+    comboText.textContent =
+        "x" + combo;
+
+    bestText.textContent =
+        best;
+}
+
+
+/* =========================
+   메시지
+========================= */
+
+function showMessage(
+    text,
+    duration
+) {
+
+    message.textContent =
+        text;
+
+    message.style.opacity = 1;
+
+    setTimeout(
+        () => {
+
+            message.style.opacity = 0;
+
+        },
+        duration
+    );
+}
+
+
+/* =========================
+   배경
+========================= */
+
+function drawBackground() {
+
+    /*
+        바닥
+    */
+
+    ctx.fillStyle = "#777";
+
+    ctx.fillRect(
+        0,
+        580,
+        canvas.width,
+        120
+    );
+
+
+    /*
+        코트 라인
+    */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,0.5)";
+
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        150,
+        580,
+        120,
+        Math.PI,
+        Math.PI * 2
+    );
+
+    ctx.stroke();
+
+
+    /*
+        먼 배경 건물
+    */
+
+    ctx.fillStyle =
+        "rgba(50,70,90,0.25)";
+
+    for (
+        let i = 0;
+        i < 10;
+        i++
+    ) {
+
+        let h =
+            80 +
+            Math.random() * 80;
+
+        ctx.fillRect(
+            i * 130,
+            580 - h,
+            100,
+            h
+        );
+
+    }
+}
+
+
+/* =========================
+   골대
+========================= */
+
+function drawHoop() {
+
+    const left =
+        hoop.x -
+        hoop.width / 2;
+
+    const rimY =
+        hoop.y +
+        hoop.height * 0.55;
+
+
+    /*
+        백보드
+    */
+
+    ctx.fillStyle =
+        "rgba(255,255,255,0.8)";
+
+    ctx.fillRect(
+        left - 20,
+        hoop.y,
+        hoop.width + 40,
+        12
+    );
+
+
+    /*
+        백보드 테두리
+    */
+
+    ctx.strokeStyle =
+        "#444";
+
+    ctx.lineWidth = 4;
+
+    ctx.strokeRect(
+        left - 20,
+        hoop.y,
+        hoop.width + 40,
+        12
+    );
+
+
+    /*
+        림
+    */
+
+    ctx.strokeStyle =
+        "#ff3b00";
+
+    ctx.lineWidth = 9;
+
+    ctx.beginPath();
+
+    ctx.ellipse(
+        hoop.x,
+        rimY,
+        hoop.width / 2,
+        10,
+        0,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.stroke();
+
+
+    /*
+        그물
+    */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,0.7)";
+
+    ctx.lineWidth = 2;
+
+    for (
+        let i = -4;
+        i <= 4;
+        i++
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            hoop.x +
+            i *
+            hoop.width /
+            10,
+            rimY
+        );
+
+        ctx.lineTo(
+            hoop.x +
+            i *
+            hoop.width /
+            14,
+            rimY + 55
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    /*
+        세로 그물
+    */
+
+    for (
+        let i = -3;
+        i <= 3;
+        i++
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            left +
+            hoop.width *
+            (i + 4) /
+            8,
+            rimY + 10
+        );
+
+        ctx.lineTo(
+            left +
+            hoop.width *
+            (i + 4) /
+            8,
+            rimY + 50
+        );
+
+        ctx.stroke();
+
+    }
+}
+
+
+/* =========================
+   공
+========================= */
+
+function drawBall() {
+
+    ctx.save();
+
+    ctx.translate(
+        ball.x,
+        ball.y
+    );
+
+    ctx.rotate(
+        ball.rotation
+    );
+
+
+    /*
+        그림자
+    */
+
+    ctx.restore();
+
+    /*
+        공 본체
+    */
+
+    const gradient =
+        ctx.createRadialGradient(
+            -7,
+            -8,
+            3,
+            0,
+            0,
+            ball.radius
+        );
+
+    gradient.addColorStop(
+        0,
+        "#ffb347"
+    );
+
+    gradient.addColorStop(
+        1,
+        "#e65100"
+    );
+
+
+    ctx.fillStyle =
+        gradient;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        ball.x,
+        ball.y,
+        ball.radius,
+        0,
+        Math.PI * 2
+    );
+
+    ctx.fill();
+
+
+    /*
+        농구공 선
+    */
+
+    ctx.strokeStyle =
+        "#351500";
+
+    ctx.lineWidth = 3;
+
+    ctx.beginPath();
+
+    ctx.arc(
+        ball.x,
+        ball.y,
+        ball.radius * 0.7,
+        -Math.PI / 2,
+        Math.PI / 2
+    );
+
+    ctx.stroke();
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        ball.x - ball.radius,
+        ball.y
+    );
+
+    ctx.quadraticCurveTo(
+        ball.x,
+        ball.y - 7,
+        ball.x + ball.radius,
+        ball.y
+    );
+
+    ctx.stroke();
+}
+
+
+/* =========================
+   조준선
+========================= */
+
+function drawAim() {
+
+    if (!aiming)
+        return;
+
+
+    /*
+        공 → 조준점
+    */
+
+    ctx.strokeStyle =
+        "rgba(255,255,255,0.8)";
+
+    ctx.lineWidth = 4;
+
+    ctx.setLineDash([
+        10,
+        10
+    ]);
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        ball.x,
+        ball.y
+    );
+
+    ctx.lineTo(
+        aimX,
+        aimY
+    );
+
+    ctx.stroke();
+
+    ctx.setLineDash([]);
+
+
+    /*
+        예상 방향
+    */
+
+    let dx =
+        ball.x - aimX;
+
+    let dy =
+        ball.y - aimY;
+
+    let distance =
+        Math.sqrt(
+            dx * dx +
+            dy * dy
+        );
+
+    if (distance > 20) {
+
+        let nx =
+            dx / distance;
+
+        let ny =
+            dy / distance;
+
+
+        ctx.strokeStyle =
+            "#00ffcc";
+
+        ctx.lineWidth = 3;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            ball.x,
+            ball.y
+        );
+
+        ctx.lineTo(
+            ball.x + nx * 180,
+            ball.y + ny * 180
+        );
+
+        ctx.stroke();
+
+
+        /*
+            화살표
+        */
+
+        const endX =
+            ball.x + nx * 180;
+
+        const endY =
+            ball.y + ny * 180;
+
+        ctx.fillStyle =
+            "#00ffcc";
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            endX,
+            endY
+        );
+
+        ctx.lineTo(
+            endX - nx * 18 + ny * 8,
+            endY - ny * 18 - nx * 8
+        );
+
+        ctx.lineTo(
+            endX - nx * 18 - ny * 8,
+            endY - ny * 18 + nx * 8
+        );
+
+        ctx.closePath();
+
+        ctx.fill();
+
+    }
+
+}
+
+
+/* =========================
+   바람 표시
+========================= */
+
+function drawWind() {
+
+    ctx.fillStyle =
+        "rgba(0,0,0,0.35)";
+
+    ctx.font =
+        "18px Arial";
+
+    let text;
+
+    if (wind > 0) {
+
+        text =
+            "🌬️ 바람 →";
+
+    } else {
+
+        text =
+            "🌬️ ← 바람";
+
+    }
+
+    ctx.fillText(
+        text,
+        500,
+        50
+    );
+}
+
+
+/* =========================
+   렌더링
+========================= */
+
+function draw() {
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    drawBackground();
+
+    drawWind();
+
+    drawHoop();
+
+    drawAim();
+
+    drawBall();
+}
+
+
+/* =========================
+   게임 루프
+========================= */
+
+function gameLoop() {
+
+    update();
+
+    draw();
+
+    requestAnimationFrame(
+        gameLoop
+    );
+}
+
+
+/* =========================
+   실행
+========================= */
+
+gameLoop();
+
+</script>
+
+</body>
+</html>
